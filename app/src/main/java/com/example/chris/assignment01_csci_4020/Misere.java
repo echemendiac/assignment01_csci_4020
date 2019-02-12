@@ -1,9 +1,14 @@
 package com.example.chris.assignment01_csci_4020;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -22,50 +27,90 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
 
     private int turnCount = 0; // keeps track of how many times a turn is played
     private boolean player1Turn = true;
+    private TextView turn_tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.misere_layout);
 
+        turn_tv = findViewById(R.id.misereTurn_tv);;
+        turn_tv.setText("Player 1 turn");
+
         //---- Set up Onclick Listners ----//
-        findViewById(R.id.reset_b).setOnClickListener(this);
+
+        //reset button
+        findViewById(R.id.misereReset_b).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("misere","reset button was clicked");
+                resetGame();
+            }
+        });
+
+        //rules button
+        findViewById(R.id.misereRules_b).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.i("misere","rules button was clicked");
+
+                //Creating textView to be used with toast
+                TextView tv = new TextView(getApplicationContext());
+                tv.setText("Player 1 is X.\n"
+                + "Player 2 is O.\n"
+                + "Same rules as Tic Tac Toe\n"
+                + "except object of game is not to get three in a row.\n"
+                + "First person to get three in a row,\n"
+                + "horzontally, veritically, or diagonal, loses.");
+                tv.setTextSize(20);
+                tv.setPadding(25,25,25,25);
+                tv.setBackgroundColor(Color.WHITE);
+                tv.setTextColor(Color.BLACK);
+
+                //Toast created and set with textView so that the toast is custom
+                Toast toast = Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.setView(tv);
+                toast.show();
+            }
+        });
+
 
         for (int i=0; i < 3; i++){
             for(int j=0; j < 3; j++){
                 //Below creates a new string that matches the button id
                 //Then a variable for resource id
-                String buttonID = "misereb_" + i + j;
+                String buttonID = "misereb_" + i +""+ j;
+
                 int resourceID = getResources().getIdentifier(buttonID, "id", getPackageName());
-                Button b = findViewById(resourceID);
-                b.setOnClickListener(this);
+                buttons[i][j] = findViewById(resourceID);
+                buttons[i][j].setOnClickListener(this);
                 //Set the background of each button to a dark background image
-                b.setBackgroundResource(R.drawable.darkbackground);
+                buttons[i][j].setBackgroundResource(R.drawable.darkbackground);
             }
         }
     }
 
     @Override
     public void onClick(View v) {
+        Log.i("misere","button was clicked");
         for (int i=0; i < 3; i++){
             for(int j=0; j < 3; j++){
-                //Below creates a new string that matches the button id
-                //Then a variable for resource id
-                String buttonID = "misereb_" + i + j;
-                int resourceID = getResources().getIdentifier(buttonID, "id", getPackageName());
-                // get the clicked button and create a resembling object
-                Button b = findViewById(resourceID);
 
                 //check which button got clicked
                 //then depending on who's turn it is set the background for x or o
                 //set the parallel array to match
-                if (v.getId() == resourceID) {
+                Button b = buttons[i][j];
+                if (v == b) {
+                    Log.i("misere","["+i+"]["+j+"]");
                     if (player1Turn) {
                         b.setBackgroundResource(R.drawable.xx);
                         buttonArray[i][j] = 1;
-                    } else
+                    } else {
                         b.setBackgroundResource(R.drawable.oo);
-                    buttonArray[i][j] = 2;
+                        buttonArray[i][j] = 2;
+                    }
                 }
             }
         }
@@ -76,16 +121,24 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
         //check if someone won after grid is filled game is a draw
         //if no one has won then switch turns
         if(checkWin()){
+            Log.i("misere","someone won game");
             if(player1Turn) {
+                Log.i("misere","Player 1 wins");
                 player2Wins();
             }else {
+                Log.i("misere","Player 2 wins");
                 player1Wins();
+
             }
         }else if (turnCount == 9){
             playerDraw();
         }else{
             //switch turns
             player1Turn = !player1Turn;
+            if(player1Turn)
+                turn_tv.setText("Player 1's turn");
+            else
+                turn_tv.setText("Player 2's turn");
         }
 
     }
@@ -97,32 +150,41 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
      * @return true or false if a win is detected
      */
     private boolean checkWin() {
-        int[][] field = new int[3][3];
+        int[][] grid = new int[3][3];
 
+        //basic 2D array copy
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                field[i][j] = buttonArray[i][j];
+                grid[i][j] = buttonArray[i][j];
+                Log.i("misere","grid["+i+"]["+j+"] = "+grid[i][j]);
             }
         }
+        
+
         for (int i = 0; i < 3; i++) {
-            if (field[i][0] == (field[i][1])
-                    && field[i][0] == (field[i][2])
-                    && !(field[i][0] == 0)) {
+
+            //checks rows win
+            if (grid[i][0] == (grid[i][1])
+                    && grid[i][0] == (grid[i][2])
+                    && !(grid[i][0] == 0)) {
                 return true;
             }
-            if (field[0][i] == (field[1][i])
-                    && field[0][i] == (field[2][i])
-                    && !(field[0][i] == 0)) {
+            //checks column win
+            if (grid[0][i] == (grid[1][i])
+                    && grid[0][i] == (grid[2][i])
+                    && !(grid[0][i] == 0)) {
                 return true;
             }
-            if (field[0][0] == (field[1][1])
-                    && field[0][0] == (field[2][2])
-                    && !(field[0][0] == 0)) {
+            //check diagonal top left corner
+            if (grid[0][0] == (grid[1][1])
+                    && grid[0][0] == (grid[2][2])
+                    && !(grid[0][0] == 0)) {
                 return true;
             }
-            if (field[0][2] == (field[1][1])
-                    && field[0][2] == (field[2][0])
-                    && !(field[0][2] == 0)) {
+            //check diagonal
+            if (grid[0][2] == (grid[1][1])
+                    && grid[0][2] == (grid[2][0])
+                    && !(grid[0][2] == 0)) {
                 return true;
             }
         }
@@ -172,6 +234,9 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
 
         //reset number of turns
         turnCount =0;
+
+        //reset text view
+        turn_tv.setText("Player 1's turn");
     }
 }
 
