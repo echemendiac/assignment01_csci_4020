@@ -21,7 +21,8 @@
         </activity>
         <activity
             android:name=".Misere"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize|keyboardHidden" ></activity>
     </application>
 
 </manifest>
