@@ -30,13 +30,69 @@ public class Sos extends AppCompatActivity implements View.OnClickListener{
     private char letterChoice = 'n';
     private TextView turn_tv;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sos_layout);
-
         turn_tv = findViewById(R.id.sosTurn_tv);;
-        turn_tv.setText("Player 1 turn");
+
+        for (int i=0; i < 3; i++){
+            for(int j=0; j < 3; j++){
+                //Below creates a new string that matches the button id
+                //Then a variable for resource id
+                String buttonID = "sosb_" + i +""+ j;
+
+                int resourceID = getResources().getIdentifier(buttonID, "id", getPackageName());
+                buttons[i][j] = findViewById(resourceID);
+                buttons[i][j].setOnClickListener(this);
+                //Set the background of each button to a dark background image
+                buttons[i][j].setBackgroundResource(R.drawable.darkbackground);
+            }
+        }
+
+        if (savedInstanceState != null) {
+            // Restore value of members from saved state
+            Log.i("sos","instance is finally not null");
+
+            if ((savedInstanceState != null) && (savedInstanceState.getSerializable("moves") != null)) {
+                Log.i("sos","instance was not null and moves not null");
+                buttonArray = (int[][]) savedInstanceState.getSerializable("moves");
+
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        if(buttonArray[i][j] == 1){
+                            buttons[i][j].setBackgroundResource(R.drawable.ss);
+                        }
+                        else if(buttonArray[i][j] == 2){
+                            buttons[i][j].setBackgroundResource(R.drawable.myoo);
+                        }
+                    }
+                }
+
+            }
+            if ((savedInstanceState != null) && (savedInstanceState.getSerializable("turn") != null)) {
+                Log.i("sos","instance was not null and turn not null");
+                player1Turn = (boolean) savedInstanceState.getSerializable("turn");
+                if(player1Turn)
+                    turn_tv.setText("Player 1's turn Select S or O");
+                else
+                    turn_tv.setText("Player 2's turn Select S or O");
+            }
+            if ((savedInstanceState != null) && (savedInstanceState.getSerializable("letter") != null)) {
+                Log.i("sos","instance was not null and letter not null");
+                letterChoice = (char) savedInstanceState.getSerializable("letter");
+            }
+            if ((savedInstanceState != null) && (savedInstanceState.getSerializable("numTurns") != null)) {
+                Log.i("sos","instance was not null and numTurns not null");
+                turnCount = (int) savedInstanceState.getSerializable("numTurns");
+            }
+        }
+        else{
+            Log.i("sos","instance was null");
+            turn_tv.setText("Player 1 turn");
+        }
+
 
         //---- Set up Onclick Listeners ----//
 
@@ -92,19 +148,7 @@ public class Sos extends AppCompatActivity implements View.OnClickListener{
             }
         });
 
-        for (int i=0; i < 3; i++){
-            for(int j=0; j < 3; j++){
-                //Below creates a new string that matches the button id
-                //Then a variable for resource id
-                String buttonID = "sosb_" + i +""+ j;
 
-                int resourceID = getResources().getIdentifier(buttonID, "id", getPackageName());
-                buttons[i][j] = findViewById(resourceID);
-                buttons[i][j].setOnClickListener(this);
-                //Set the background of each button to a dark background image
-                buttons[i][j].setBackgroundResource(R.drawable.darkbackground);
-            }
-        }
     }
 
     @Override
@@ -124,26 +168,37 @@ public class Sos extends AppCompatActivity implements View.OnClickListener{
                             turn_tv.setText("Player 1 must choose a letter.");
                             return;
                         }
-                        if(letterChoice == 'S') {
-                            b.setBackgroundResource(R.drawable.ss);
-                            buttonArray[i][j] = 1;
+                        if(buttonArray[i][j] == 0){
+                            if(letterChoice == 'S') {
+                                b.setBackgroundResource(R.drawable.ss);
+                                buttonArray[i][j] = 1;
+                            }
+                            else if(letterChoice == 'O') {
+                                b.setBackgroundResource(R.drawable.myoo);
+                                buttonArray[i][j] = 2;
+                            }
                         }
-                        else if(letterChoice == 'O') {
-                            b.setBackgroundResource(R.drawable.myoo);
-                            buttonArray[i][j] = 2;
+                        else{
+                            turn_tv.setText("Space is already played");
+                            return;
                         }
                     } else {
                         while(letterChoice == 'n'){
                             turn_tv.setText("Player 2 must choose a letter.");
                             return;
                         }
-                        if(letterChoice == 'S') {
-                            b.setBackgroundResource(R.drawable.ss);
-                            buttonArray[i][j] = 1;
+                        if(buttonArray[i][j] == 0) {
+                            if (letterChoice == 'S') {
+                                b.setBackgroundResource(R.drawable.ss);
+                                buttonArray[i][j] = 1;
+                            } else if (letterChoice == 'O') {
+                                b.setBackgroundResource(R.drawable.myoo);
+                                buttonArray[i][j] = 2;
+                            }
                         }
-                        else if(letterChoice == 'O') {
-                            b.setBackgroundResource(R.drawable.myoo);
-                            buttonArray[i][j] = 2;
+                        else{
+                            turn_tv.setText("Space is already played");
+                            return;
                         }
                     }
                 }
@@ -281,40 +336,40 @@ public class Sos extends AppCompatActivity implements View.OnClickListener{
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
         Log.i("sos","in the on save instance");
-        state.putSerializable("moves", buttonArray);
-        state.putSerializable("turn", player1Turn);
-        state.putSerializable("letter", letterChoice);
-        state.putSerializable("numTurns", turnCount);
+        savedInstanceState.putSerializable("moves", buttonArray);
+        savedInstanceState.putSerializable("turn", player1Turn);
+        savedInstanceState.putSerializable("letter", letterChoice);
+        savedInstanceState.putSerializable("numTurns", turnCount);
         Log.i("sos","values saved");
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
+    //@Override
+    //protected void onRestoreInstanceState(Bundle state) {
+    //    //super.onRestoreInstanceState(state);
 
-        Log.i("sos","in the on restore instance");
-        if ((state != null) && (state.getSerializable("moves") != null)) {
-            Log.i("sos","instance was not null and moves not null");
-            buttonArray = (int[][]) state.getSerializable("moves");
-        }
-        if ((state != null) && (state.getSerializable("turn") != null)) {
-            player1Turn = (boolean) state.getSerializable("turn");
-        }
-        if ((state != null) && (state.getSerializable("letter") != null)) {
-            letterChoice = (char) state.getSerializable("letter");
-        }
-        if ((state != null) && (state.getSerializable("numTurns") != null)) {
-            turnCount = (int) state.getSerializable("numTurns");
-        }
+    //      Log.i("sos","in the on restore instance");
+    //  if ((state != null) && (state.getSerializable("moves") != null)) {
+    //      Log.i("sos","instance was not null and moves not null");
+    //      buttonArray = (int[][]) state.getSerializable("moves");
+    //  }
+    //  if ((state != null) && (state.getSerializable("turn") != null)) {
+    //      player1Turn = (boolean) state.getSerializable("turn");
+    //  }
+    //  if ((state != null) && (state.getSerializable("letter") != null)) {
+    //      letterChoice = (char) state.getSerializable("letter");
+    //  }
+    //  if ((state != null) && (state.getSerializable("numTurns") != null)) {
+    //      turnCount = (int) state.getSerializable("numTurns");
+    //  }
 
-        if(player1Turn)
-            turn_tv.setText("Player 1's turn Select S or O");
-        else
-            turn_tv.setText("Player 2's turn Select S or O");
-    }
+    //      if(player1Turn)
+    //      turn_tv.setText("Player 1's turn Select S or O");
+    //  else
+    //      turn_tv.setText("Player 2's turn Select S or O");
+    //}
 
 }
 

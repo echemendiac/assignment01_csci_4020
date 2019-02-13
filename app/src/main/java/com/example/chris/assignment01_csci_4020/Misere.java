@@ -33,10 +33,59 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.misere_layout);
-
         turn_tv = findViewById(R.id.misereTurn_tv);;
-        turn_tv.setText("Player 1 turn");
 
+        for (int i=0; i < 3; i++){
+            for(int j=0; j < 3; j++){
+                //Below creates a new string that matches the button id
+                //Then a variable for resource id
+                String buttonID = "misereb_" + i +""+ j;
+
+                int resourceID = getResources().getIdentifier(buttonID, "id", getPackageName());
+                buttons[i][j] = findViewById(resourceID);
+                buttons[i][j].setOnClickListener(this);
+                //Set the background of each button to a dark background image
+                buttons[i][j].setBackgroundResource(R.drawable.darkbackground);
+            }
+        }
+
+        if (savedInstanceState != null) {
+            // Restore value of members from saved state
+            Log.i("misere","instance is finally not null");
+
+            if ((savedInstanceState != null) && (savedInstanceState.getSerializable("moves") != null)) {
+                Log.i("misere","instance was not null and moves not null");
+                buttonArray = (int[][]) savedInstanceState.getSerializable("moves");
+
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        if(buttonArray[i][j] == 1){
+                            buttons[i][j].setBackgroundResource(R.drawable.xx);
+                        }
+                        else if(buttonArray[i][j] == 2){
+                            buttons[i][j].setBackgroundResource(R.drawable.oo);
+                        }
+                    }
+                }
+
+            }
+            if ((savedInstanceState != null) && (savedInstanceState.getSerializable("turn") != null)) {
+                Log.i("misere","instance was not null and turn not null");
+                player1Turn = (boolean) savedInstanceState.getSerializable("turn");
+                if(player1Turn)
+                    turn_tv.setText("Player 1's turn Select S or O");
+                else
+                    turn_tv.setText("Player 2's turn Select S or O");
+            }
+            if ((savedInstanceState != null) && (savedInstanceState.getSerializable("numTurns") != null)) {
+                Log.i("misere","instance was not null and numTurns not null");
+                turnCount = (int) savedInstanceState.getSerializable("numTurns");
+            }
+        }
+        else{
+            Log.i("misere","instance was null");
+            turn_tv.setText("Player 1 turn");
+        }
         //---- Set up Onclick Listners ----//
 
         //reset button
@@ -76,20 +125,6 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
             }
         });
 
-
-        for (int i=0; i < 3; i++){
-            for(int j=0; j < 3; j++){
-                //Below creates a new string that matches the button id
-                //Then a variable for resource id
-                String buttonID = "misereb_" + i +""+ j;
-
-                int resourceID = getResources().getIdentifier(buttonID, "id", getPackageName());
-                buttons[i][j] = findViewById(resourceID);
-                buttons[i][j].setOnClickListener(this);
-                //Set the background of each button to a dark background image
-                buttons[i][j].setBackgroundResource(R.drawable.darkbackground);
-            }
-        }
     }
 
     @Override
@@ -105,11 +140,23 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
                 if (v == b) {
                     Log.i("misere","["+i+"]["+j+"]");
                     if (player1Turn) {
-                        b.setBackgroundResource(R.drawable.xx);
-                        buttonArray[i][j] = 1;
+                        if(buttonArray[i][j] == 0) {
+                            b.setBackgroundResource(R.drawable.xx);
+                            buttonArray[i][j] = 1;
+                        }
+                        else{
+                            turn_tv.setText("Space is already played");
+                            return;
+                        }
                     } else {
-                        b.setBackgroundResource(R.drawable.oo);
-                        buttonArray[i][j] = 2;
+                        if(buttonArray[i][j] == 0) {
+                            b.setBackgroundResource(R.drawable.oo);
+                            buttonArray[i][j] = 2;
+                        }
+                        else{
+                            turn_tv.setText("Space is already played");
+                            return;
+                        }
                     }
                 }
             }
@@ -237,6 +284,16 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
 
         //reset text view
         turn_tv.setText("Player 1's turn");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.i("sos","in the on save instance");
+        savedInstanceState.putSerializable("moves", buttonArray);
+        savedInstanceState.putSerializable("turn", player1Turn);
+        savedInstanceState.putSerializable("numTurns", turnCount);
+        Log.i("sos","values saved");
     }
 }
 

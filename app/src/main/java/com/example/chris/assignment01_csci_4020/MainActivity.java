@@ -36,13 +36,14 @@ public class MainActivity extends AppCompatActivity {
         sos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i("main","starting sos");
                 startActivity(new Intent(MainActivity.this, Sos.class));
             }
         });
 
 
 
+
+
     }
-
-
 }

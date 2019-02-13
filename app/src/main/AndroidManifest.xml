@@ -22,10 +22,12 @@
         <activity
             android:name=".Misere"
             android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" ></activity>
         <activity
             android:name=".Sos"
             android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" >
         </activity>
     </application>
