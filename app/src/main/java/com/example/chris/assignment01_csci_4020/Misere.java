@@ -73,9 +73,9 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
                 Log.i("misere","instance was not null and turn not null");
                 player1Turn = (boolean) savedInstanceState.getSerializable("turn");
                 if(player1Turn)
-                    turn_tv.setText("Player 1's turn Select S or O");
+                    turn_tv.setText("Player 1's turn");
                 else
-                    turn_tv.setText("Player 2's turn Select S or O");
+                    turn_tv.setText("Player 2's turn");
             }
             if ((savedInstanceState != null) && (savedInstanceState.getSerializable("numTurns") != null)) {
                 Log.i("misere","instance was not null and numTurns not null");
