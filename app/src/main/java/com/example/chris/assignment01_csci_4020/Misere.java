@@ -289,11 +289,11 @@ public class Misere extends AppCompatActivity implements View.OnClickListener{
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        Log.i("sos","in the on save instance");
+        Log.i("misere","in the on save instance");
         savedInstanceState.putSerializable("moves", buttonArray);
         savedInstanceState.putSerializable("turn", player1Turn);
         savedInstanceState.putSerializable("numTurns", turnCount);
-        Log.i("sos","values saved");
+        Log.i("misere","values saved");
     }
 }
 
